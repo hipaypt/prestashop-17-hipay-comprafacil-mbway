@@ -1,0 +1,1 @@
+# hipaypt-mbway-prestashop
