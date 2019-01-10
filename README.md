@@ -7,7 +7,7 @@ Accept payments for your products via MB WAY.
 
 Soap library
 
-### For module configuration you need a test or production account credentials provided by HiPay: 
+### For module configuration you need test or production account credentials provided by HiPay: 
 
 1. Username
 2. Password
