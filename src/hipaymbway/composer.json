@@ -1,0 +1,20 @@
+{
+  "name": "hipaypt/hipaypt-mbway-prestashop",
+  "description": "PrestaShop module HiPay MB WAY",
+  "homepage": "https://github.com/hipaypt/hipaypt-mbway-prestashop",
+  "license": "Apache 2.0",
+  "version": "1.0.0",
+  "authors": [
+    {
+      "name": "HiPay Portugal",
+      "email": "portugal@hipay.com"
+    }
+  ],
+  "require": {
+    "php": ">=5.4"
+  },
+  "config": {
+    "preferred-install": "dist"
+  },
+  "type": "prestashop-module"
+}
