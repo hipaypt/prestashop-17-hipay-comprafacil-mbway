@@ -427,5 +427,4 @@ class HipayMbway extends PaymentModule {
             'cart' => $cart,
         );
     }
-
 }
