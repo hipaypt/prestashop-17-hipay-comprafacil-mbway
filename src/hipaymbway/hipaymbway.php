@@ -110,7 +110,7 @@ class HipayMbway extends PaymentModule {
         if (Tools::isSubmit('btnSubmit')) {
 
             if (!Tools::getValue('HIPAY_MBWAY_ENTITY')) {
-                $this->_postErrors[] = $this->l('Account details are required.', array(), 'Modules.Hipaymbway.Admin');
+                $this->_postErrors[] = $this->l('Account details are required.');
             } elseif (!Tools::getValue('HIPAY_MBWAY_USERNAME')) {
                 $this->_postErrors[] = $this->l('Account username is required.');
             } elseif (!Tools::getValue('HIPAY_MBWAY_PASSWORD')) {
@@ -129,7 +129,7 @@ class HipayMbway extends PaymentModule {
             Configuration::updateValue('HIPAY_MBWAY_PASSWORD', Tools::getValue('HIPAY_MBWAY_PASSWORD'));
             Configuration::updateValue('HIPAY_MBWAY_CATEGORY', Tools::getValue('HIPAY_MBWAY_CATEGORY'));
         }
-        $this->_html .= $this->displayConfirmation($this->l('Settings updated', array(), 'Admin.Global'));
+        $this->_html .= $this->displayConfirmation($this->l('Settings updated'));
     }
 
     protected function _displayHipayMbway() {
@@ -169,7 +169,6 @@ class HipayMbway extends PaymentModule {
             foreach (Language::getLanguages() as $language) {
                 $new_order_state->name[$language['id_lang']] = $this->l('MB WAY payment confirmation.');
             }
-
 
             $new_order_state->module_name = $this->name;
             $new_order_state->send_email = true;
@@ -230,15 +229,15 @@ class HipayMbway extends PaymentModule {
         if ($row = Db::getInstance(_PS_USE_SQL_SLAVE_)->getRow($sql)) {
 
             if ($row['notification_date'] == "")
-                $row['notification_date'] = $this->l('No notification', array(), 'Modules.Hipaymbway.Admin');
+                $row['notification_date'] = $this->l('No notification');
             $this->context->smarty->assign(array(
-                'phone' => $row['phone'],
-                'reference' => $row['reference'],
-                'amount' => $row['amount'],
-                'order_id' => $row['order_id'],
-                'status' => strtoupper($row['status']),
-                'notification' => $row['notification_date'],
-                'mbway_logo' => $this->_path . DIRECTORY_SEPARATOR . "logo.png",
+                'phone'         => $row['phone'],
+                'reference'     => $row['reference'],
+                'amount'        => $row['amount'],
+                'order_id'      => $row['order_id'],
+                'status'        => strtoupper($row['status']),
+                'notification'  => $row['notification_date'],
+                'mbway_logo'    => $this->_path . DIRECTORY_SEPARATOR . "logo.png",
             ));
             return $this->display(__FILE__, 'views/templates/admin/admin_order.tpl');
         }
@@ -257,7 +256,7 @@ class HipayMbway extends PaymentModule {
                 }
             }
         } else {
-            $this->_html .= '<br />';
+            $this->_html .= '<p></p>';
         }
 
         $this->_html .= $this->_displayHipayMbway();
@@ -314,16 +313,16 @@ class HipayMbway extends PaymentModule {
         $fields_form = array(
             'form' => array(
                 'legend' => array(
-                    'title' => $this->l('Account details', array(), 'Modules.Hipaymbway.Admin'),
+                    'title' => $this->l('Account details'),
                     'icon' => 'icon-envelope'
                 ),
                 'input' => array(
                     array(
                         'type' => 'switch',
-                        'label' => $this->l('Sandbox', array(), 'Modules.Hipaymbway.Admin'),
+                        'label' => $this->l('Sandbox'),
                         'name' => 'HIPAY_MBWAY_SANDBOX',
                         'is_bool' => true,
-                        'hint' => $this->l('Activate to use test platform.', array(), 'Modules.Hipaymbway.Admin'),
+                        'hint' => $this->l('Activate to use test platform.'),
                         'values' => array(
                             array(
                                 'id' => 'active_on',
@@ -340,7 +339,7 @@ class HipayMbway extends PaymentModule {
                     array(
                         'type' => 'select',
                         'required' => true,
-                        'label' => $this->l('Entity', array(), 'Modules.Hipaymbway.Admin'),
+                        'label' => $this->l('Entity'),
                         'name' => 'HIPAY_MBWAY_ENTITY',
                         'options' => array(
                             'query' => $options = array(
@@ -359,21 +358,21 @@ class HipayMbway extends PaymentModule {
                     ),
                     array(
                         'type' => 'text',
-                        'label' => $this->l('Account Username', array(), 'Modules.Hipaymbway.Admin'),
+                        'label' => $this->l('Account Username'),
                         'name' => 'HIPAY_MBWAY_USERNAME',
                         'required' => true
                     ),
                     array(
                         'type' => 'text',
-                        'label' => $this->l('Account Password', array(), 'Modules.Hipaymbway.Admin'),
+                        'label' => $this->l('Account Password'),
                         'name' => 'HIPAY_MBWAY_PASSWORD',
                         'required' => true
                     ),
                     array(
                         'type' => 'text',
-                        'label' => $this->l('Account Category', array(), 'Modules.Hipaymbway.Admin'),
+                        'label' => $this->l('Account Category'),
                         'name' => 'HIPAY_MBWAY_CATEGORY',
-                        'desc' => $this->l('Category ID provided by Hipay.', array(), 'Modules.Hipaymbway.Admin'),
+                        'desc' => $this->l('Category ID provided by Hipay.'),
                         'required' => true
                     ),
                 ),
@@ -382,7 +381,6 @@ class HipayMbway extends PaymentModule {
                 )
             ),
         );
-
 
         $helper = new HelperForm();
         $helper->show_toolbar = false;
@@ -417,7 +415,7 @@ class HipayMbway extends PaymentModule {
         );
     }
 
-    public function getTemplateVarInfos)( {
+    public function getTemplateVarInfos() {
 
         $cart = $this->context->cart;
         $total = sprintf(
