@@ -60,7 +60,9 @@ class HipayMbwayConfirmationModuleFrontController extends ModuleFrontController 
         try {
             //Notification
             $entityBody = file_get_contents('php://input');
-
+			if ($this->module->logs){
+				error_log(date('Y-m-d H:i:s') . ": [NOTIFICATION] ". $entityBody .".\n\n",3,dirname(__FILE__) . '/../../logs/' . date('Y-m-d') . '.log');
+			}
             $notification = new MbwayNotification($entityBody);
             if ($notification === false)
                 exit;
@@ -95,8 +97,11 @@ class HipayMbwayConfirmationModuleFrontController extends ModuleFrontController 
                 return;
             }
 
+			$update_description = "No status update required";
+			
             switch ($transaction_status) {
                 case "c1":
+                
                     if (Configuration::get('HIPAY_MBWAY_CONFIRM') != $current_state_id) {
                         Db::getInstance()->update('hipaymbway', array(
                             'notification_date' => date('Y-m-d H:i:s'),
@@ -106,7 +111,13 @@ class HipayMbwayConfirmationModuleFrontController extends ModuleFrontController 
                                 , 'order_id=' . $row['order_id']);
 
                         $order->setCurrentState(Configuration::get('HIPAY_MBWAY_CONFIRM'));
+               			$update_description = "Status update requested";
+
                     }
+
+					if ($this->module->logs){
+						error_log(date('Y-m-d H:i:s') . ": [NOTIFICATION] Order: ". $row["order_id"] . " Current Status: " . $current_state_id . " New Status: " . $transaction_status . " " . $update_description . "\n\n",3,dirname(__FILE__) . '/../../logs/' . date('Y-m-d') . '.log');
+					}
                     break;
                 case "c3":
                 case "c6":
@@ -118,6 +129,10 @@ class HipayMbwayConfirmationModuleFrontController extends ModuleFrontController 
                                 )
                                 , 'order_id=' . $row['order_id']);
                     }
+					if ($this->module->logs){
+						error_log(date('Y-m-d H:i:s') . ": [NOTIFICATION] Order: ". $row["order_id"] . " Current Status: " . $current_state_id . " New Status: " . $transaction_status . " " . $update_description . "\n\n",3,dirname(__FILE__) . '/../../logs/' . date('Y-m-d') . '.log');
+					}
+                    
                     break;
                 case "ap1":
                     if (Configuration::get('PS_OS_REFUND') != $current_state_id && Configuration::get('HIPAY_MBWAY_CONFIRM') == $current_state_id) {
@@ -129,7 +144,11 @@ class HipayMbwayConfirmationModuleFrontController extends ModuleFrontController 
                                 , 'order_id=' . $row['order_id']);
 
                         $order->setCurrentState(Configuration::get('PS_OS_REFUND'));
+                        $update_description = "Status update requested";
                     }
+					if ($this->module->logs){
+						error_log(date('Y-m-d H:i:s') . ": [NOTIFICATION] Order: ". $row["order_id"] . " Current Status: " . $current_state_id . " New Status: " . $transaction_status . " " . $update_description . "\n\n",3,dirname(__FILE__) . '/../../logs/' . date('Y-m-d') . '.log');
+					}
                     break;
                 case "c2":
                 case "c4":
@@ -147,12 +166,20 @@ class HipayMbwayConfirmationModuleFrontController extends ModuleFrontController 
                                 , 'order_id=' . $row['order_id']);
 
                         $order->setCurrentState(Configuration::get('HIPAY_MBWAY_CANCELLED'));
+                        $update_description = "Status update requested";
                     }
+					if ($this->module->logs){
+						error_log(date('Y-m-d H:i:s') . ": [NOTIFICATION] Order: ". $row["order_id"] . " Current Status: " . $current_state_id . " New Status: " . $transaction_status . " " . $update_description . "\n\n",3,dirname(__FILE__) . '/../../logs/' . date('Y-m-d') . '.log');
+					}
                     break;
             }
         } catch (Exception $e) {
             $error = $e->getMessage();
             echo $error;
+			if ($this->module->logs){
+				error_log(date('Y-m-d H:i:s') . ": [NOTIFICATION] Error: ". $error . "\n\n",3,dirname(__FILE__) . '/../../logs/' . date('Y-m-d') . '.log');
+			}
+            
             return false;
         }
 

@@ -13,3 +13,7 @@ Soap library
 2. Password
 3. Entity
 4. Account category ID
+
+### Version Update
+
+1.0.1	=> add module logs

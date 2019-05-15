@@ -42,6 +42,9 @@ class HipayMbwayValidationModuleFrontController extends ModuleFrontController {
     public function postProcess() {
         $cart = $this->context->cart;
         if ($cart->id_customer == 0 || $cart->id_address_delivery == 0 || $cart->id_address_invoice == 0 || !$this->module->active) {
+			if ($this->context->controller->module->logs){
+				error_log(date('Y-m-d H:i:s') . ": [CREATE] No customer, no address or module not active.\n\n",3,dirname(__FILE__) . '/../../logs/' . date('Y-m-d') . '.log');
+			}		
             Tools::redirect('index.php?controller=order&step=1');
         }
 
@@ -53,6 +56,9 @@ class HipayMbwayValidationModuleFrontController extends ModuleFrontController {
             }
         }
         if (!$authorized) {
+			if ($this->context->controller->module->logs){
+				error_log(date('Y-m-d H:i:s') . ": [CREATE] Not authorized to use this module.\n\n",3,dirname(__FILE__) . '/../../logs/' . date('Y-m-d') . '.log');
+			}					
             die($this->module->l('This payment method is not available.', 'validation'));
         }
 
@@ -112,25 +118,45 @@ class HipayMbwayValidationModuleFrontController extends ModuleFrontController {
                         'amount' => $total,
                     ));
 
+					if ($this->context->controller->module->logs){
+						error_log(date('Y-m-d H:i:s') . ": [CREATE] Created reference " .$reference. " for cart " . $cart->id . " and order " . $this->module->currentOrder . ".\n\n",3,dirname(__FILE__) . '/../../logs/' . date('Y-m-d') . '.log');
+					}					
+
                     Tools::redirect('index.php?controller=order-confirmation&id_cart=' . $cart->id . '&id_module=' . $this->module->id . '&id_order=' . $this->module->currentOrder . '&key=' . $customer->secure_key);
                     break;
                 case "vp2":
+					if ($this->context->controller->module->logs){
+						error_log(date('Y-m-d H:i:s') . ": [CREATE] Error for cart " . $cart->id . ". Operation refused. Please try again or choose another payment method.\n\n",3,dirname(__FILE__) . '/../../logs/' . date('Y-m-d') . '.log');
+					}					
                     $error = $this->module->l("Operation refused. Please try again or choose another payment method.");
+					break;
                 case "vp3":
-
+					if ($this->context->controller->module->logs){
+						error_log(date('Y-m-d H:i:s') . ": [CREATE] Error for cart " . $cart->id . ". Operation refused. Limit exceeded. Please try again or choose another payment method.\n\n",3,dirname(__FILE__) . '/../../logs/' . date('Y-m-d') . '.log');
+					}	
                     $error = $this->module->l("Operation refused. Limit exceeded. Please try again or choose another payment method.");
+                    break;
                 case "er1":
-
+					if ($this->context->controller->module->logs){
+						error_log(date('Y-m-d H:i:s') . ": [CREATE] Error for cart " . $cart->id . ". Operation refused. Invalid phone number. Please try again with another phone number or choose another payment method.\n\n",3,dirname(__FILE__) . '/../../logs/' . date('Y-m-d') . '.log');
+					}	
                     $error = $this->module->l("Operation refused. Invalid phone number. Please try again with another phone number or choose another payment method.");
+                    break;
                 case "er2":
-
+					if ($this->context->controller->module->logs){
+						error_log(date('Y-m-d H:i:s') . ": [CREATE] Error for cart " . $cart->id . ". Operation refused. Unassigned phone number. Please try again with another phone number or choose another payment method.\n\n",3,dirname(__FILE__) . '/../../logs/' . date('Y-m-d') . '.log');
+					}	
                     $error = $this->module->l("Operation refused. Unassigned phone number. Please try again with another phone number or choose another payment method.");
+                    break;
                 default:
 
                     $error = $this->module->l("Operation refused. Please try again or choose another payment method.");
             }
         } else {
             $error = $mbwayRequestTransactionResult->get_ErrorDescription();
+			if ($this->context->controller->module->logs){
+				error_log(date('Y-m-d H:i:s') . ": [CREATE] Error for cart " . $cart->id . ". " . $error . "\n\n",3,dirname(__FILE__) . '/../../logs/' . date('Y-m-d') . '.log');
+			}	
         }
 
         $this->context->smarty->assign(array(

@@ -24,6 +24,7 @@ class HipayMbway extends PaymentModule {
     public $username;
     public $password;
     public $category;
+    public $logs;
 
     public function __construct() {
         $this->name = 'hipaymbway';
@@ -36,7 +37,7 @@ class HipayMbway extends PaymentModule {
         $this->currencies = true;
         $this->currencies_mode = 'checkbox';
 
-        $config = Configuration::getMultiple(array('HIPAY_MBWAY_SANDBOX', 'HIPAY_MBWAY_ENTITY', 'HIPAY_MBWAY_USERNAME', 'HIPAY_MBWAY_PASSWORD', 'HIPAY_MBWAY_CATEGORY'));
+        $config = Configuration::getMultiple(array('HIPAY_MBWAY_SANDBOX', 'HIPAY_MBWAY_ENTITY', 'HIPAY_MBWAY_USERNAME', 'HIPAY_MBWAY_PASSWORD', 'HIPAY_MBWAY_CATEGORY', 'HIPAY_MBWAY_LOGS'));
         if (!empty($config['HIPAY_MBWAY_SANDBOX'])) {
             $this->sandbox = $config['HIPAY_MBWAY_SANDBOX'];
         }
@@ -52,7 +53,10 @@ class HipayMbway extends PaymentModule {
         if (!empty($config['HIPAY_MBWAY_CATEGORY'])) {
             $this->category = $config['HIPAY_MBWAY_CATEGORY'];
         }
-
+        if (!empty($config['HIPAY_MBWAY_LOGS'])) {
+            $this->logs = $config['HIPAY_MBWAY_LOGS'];
+        }
+        
         $this->bootstrap = true;
         parent::__construct();
 
@@ -100,7 +104,7 @@ class HipayMbway extends PaymentModule {
 
     public function uninstall() {
 
-        if (!Configuration::deleteByName('HIPAY_MBWAY_ENTITY') || !Configuration::deleteByName('HIPAY_MBWAY_SANDBOX') || !Configuration::deleteByName('HIPAY_MBWAY_USERNAME') || !Configuration::deleteByName('HIPAY_MBWAY_PASSWORD') || !Configuration::deleteByName('HIPAY_MBWAY_CATEGORY') || !parent::uninstall()) {
+        if (!Configuration::deleteByName('HIPAY_MBWAY_LOGS') || !Configuration::deleteByName('HIPAY_MBWAY_ENTITY') || !Configuration::deleteByName('HIPAY_MBWAY_SANDBOX') || !Configuration::deleteByName('HIPAY_MBWAY_USERNAME') || !Configuration::deleteByName('HIPAY_MBWAY_PASSWORD') || !Configuration::deleteByName('HIPAY_MBWAY_CATEGORY') || !parent::uninstall()) {
             return false;
         }
         return true;
@@ -123,11 +127,20 @@ class HipayMbway extends PaymentModule {
 
     protected function _postProcess() {
         if (Tools::isSubmit('btnSubmit')) {
-            Configuration::updateValue('HIPAY_MBWAY_SANDBOX', Tools::getValue('HIPAY_MBWAY_SANDBOX'));
-            Configuration::updateValue('HIPAY_MBWAY_ENTITY', Tools::getValue('HIPAY_MBWAY_ENTITY'));
-            Configuration::updateValue('HIPAY_MBWAY_USERNAME', Tools::getValue('HIPAY_MBWAY_USERNAME'));
-            Configuration::updateValue('HIPAY_MBWAY_PASSWORD', Tools::getValue('HIPAY_MBWAY_PASSWORD'));
-            Configuration::updateValue('HIPAY_MBWAY_CATEGORY', Tools::getValue('HIPAY_MBWAY_CATEGORY'));
+            Configuration::updateValue('HIPAY_MBWAY_SANDBOX', 	Tools::getValue('HIPAY_MBWAY_SANDBOX'));
+            Configuration::updateValue('HIPAY_MBWAY_ENTITY', 	Tools::getValue('HIPAY_MBWAY_ENTITY'));
+            Configuration::updateValue('HIPAY_MBWAY_USERNAME', 	Tools::getValue('HIPAY_MBWAY_USERNAME'));
+            Configuration::updateValue('HIPAY_MBWAY_PASSWORD', 	Tools::getValue('HIPAY_MBWAY_PASSWORD'));
+            Configuration::updateValue('HIPAY_MBWAY_CATEGORY', 	Tools::getValue('HIPAY_MBWAY_CATEGORY'));
+            Configuration::updateValue('HIPAY_MBWAY_LOGS', 		Tools::getValue('HIPAY_MBWAY_LOGS'));
+           
+       		if ( Tools::getValue('HIPAY_MBWAY_LOGS') && is_writable( dirname(__FILE__)  ) ){
+				if ( !is_file( dirname(__FILE__) . '/logs') ){
+					mkdir( dirname(__FILE__) . '/logs');
+					copy( dirname(__FILE__) . '/index.php' , dirname(__FILE__) . '/logs/index.php');
+				}
+				error_log(date('Y-m-d H:i:s') . ": [ADMIN] Save configurations.\n\n",3,dirname(__FILE__) . '/logs/' . date('Y-m-d') . '.log');
+			}
         }
         $this->_html .= $this->displayConfirmation($this->l('Settings updated'));
     }
@@ -310,6 +323,12 @@ class HipayMbway extends PaymentModule {
 
         $this->createOrderStatus();
 
+		if ( is_writable( dirname(__FILE__)  ) ){
+			$hipay_logs_desc = $this->l('If enabled, check the logs folder on the module folder for daily logs.');
+		} else {
+			$hipay_logs_desc = $this->l('Unable to create logs folder. Please check the module folder permissions.');	
+		}
+		
         $fields_form = array(
             'form' => array(
                 'legend' => array(
@@ -375,6 +394,26 @@ class HipayMbway extends PaymentModule {
                         'desc' => $this->l('Category ID provided by Hipay.'),
                         'required' => true
                     ),
+                    array(
+                        'type' => 'switch',
+                        'label' => $this->l('Enable Log'),
+                        'name' => 'HIPAY_MBWAY_LOGS',
+                        'is_bool' => true,
+                        'hint' => $this->l('Enable module logs.'),
+                        'desc' => $hipay_logs_desc,
+                        'values' => array(
+                            array(
+                                'id' => 'active_on',
+                                'value' => true,
+                                'label' => $this->l('Enabled', array(), 'Admin.Global'),
+                            ),
+                            array(
+                                'id' => 'active_off',
+                                'value' => false,
+                                'label' => $this->l('Disabled', array(), 'Admin.Global'),
+                            )
+                        ),
+                    ),                    
                 ),
                 'submit' => array(
                     'title' => $this->l('Save', array(), 'Admin.Actions'),
@@ -407,11 +446,12 @@ class HipayMbway extends PaymentModule {
     public function getConfigFieldsValues() {
 
         return array(
-            'HIPAY_MBWAY_SANDBOX' => Tools::getValue('HIPAY_MBWAY_SANDBOX', Configuration::get('HIPAY_MBWAY_SANDBOX')),
-            'HIPAY_MBWAY_USERNAME' => Tools::getValue('HIPAY_MBWAY_USERNAME', Configuration::get('HIPAY_MBWAY_USERNAME')),
-            'HIPAY_MBWAY_PASSWORD' => Tools::getValue('HIPAY_MBWAY_PASSWORD', Configuration::get('HIPAY_MBWAY_PASSWORD')),
-            'HIPAY_MBWAY_CATEGORY' => Tools::getValue('HIPAY_MBWAY_CATEGORY', Configuration::get('HIPAY_MBWAY_CATEGORY')),
-            'HIPAY_MBWAY_ENTITY' => Tools::getValue('HIPAY_MBWAY_ENTITY', Configuration::get('HIPAY_MBWAY_ENTITY')),
+            'HIPAY_MBWAY_SANDBOX' 	=> Tools::getValue('HIPAY_MBWAY_SANDBOX', 	Configuration::get('HIPAY_MBWAY_SANDBOX')),
+            'HIPAY_MBWAY_USERNAME' 	=> Tools::getValue('HIPAY_MBWAY_USERNAME', 	Configuration::get('HIPAY_MBWAY_USERNAME')),
+            'HIPAY_MBWAY_PASSWORD' 	=> Tools::getValue('HIPAY_MBWAY_PASSWORD', 	Configuration::get('HIPAY_MBWAY_PASSWORD')),
+            'HIPAY_MBWAY_CATEGORY' 	=> Tools::getValue('HIPAY_MBWAY_CATEGORY', 	Configuration::get('HIPAY_MBWAY_CATEGORY')),
+            'HIPAY_MBWAY_ENTITY' 	=> Tools::getValue('HIPAY_MBWAY_ENTITY', 	Configuration::get('HIPAY_MBWAY_ENTITY')),
+            'HIPAY_MBWAY_LOGS' 		=> Tools::getValue('HIPAY_MBWAY_LOGS', 		Configuration::get('HIPAY_MBWAY_LOGS')),
         );
     }
 
