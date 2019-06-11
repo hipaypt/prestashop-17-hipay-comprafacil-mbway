@@ -29,7 +29,7 @@ class HipayMbway extends PaymentModule {
     public function __construct() {
         $this->name = 'hipaymbway';
         $this->tab = 'payments_gateways';
-        $this->version = '1.0.0';
+        $this->version = '1.0.2';
         $this->ps_versions_compliancy = array('min' => '1.7.1.0', 'max' => _PS_VERSION_);
         $this->author = 'HiPay Portugal';
         $this->controllers = array('payment', 'validation');
