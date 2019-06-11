@@ -16,6 +16,6 @@ Soap library
 
 ### Version Update
 
-1.0.2	=> add order_id on confirmation	
-1.0.1	=> add module logs
+#### 1.0.2	=> add order_id on confirmation	
+#### 1.0.1	=> add module logs
 
