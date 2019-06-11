@@ -48,15 +48,6 @@ class HipayMbwayConfirmationModuleFrontController extends ModuleFrontController 
 
         $cart_id = (int) Tools::getValue('cart_id');
 
-        $sql = 'SELECT * FROM ' . _DB_PREFIX_ . 'hipaymbway WHERE cart = ' . $cart_id;
-        $row = Db::getInstance(_PS_USE_SQL_SLAVE_)->getRow($sql);
-        if (!$row)
-            return;
-
-        $order = new Order((int) $row['order_id']);
-        $order_total = (float) $order->total_paid;
-        $current_state_id = $order->getCurrentOrderState()->id;
-
         try {
             //Notification
             $entityBody = file_get_contents('php://input');
@@ -71,8 +62,18 @@ class HipayMbwayConfirmationModuleFrontController extends ModuleFrontController 
             $transaction_id = $notification->get_OperationId();
             $transaction_amount = $notification->get_Amount();
             $transaction_status = $notification->get_StatusCode();
+
             if ($notification_cart_id != $cart_id)
                 return;
+
+			$sql = 'SELECT * FROM ' . _DB_PREFIX_ . 'hipaymbway WHERE reference = \''.$transaction_id.'\' and cart = ' . $cart_id;
+			$row = Db::getInstance(_PS_USE_SQL_SLAVE_)->getRow($sql);
+			if (!$row)
+				return;
+
+			$order = new Order((int) $row['order_id']);
+			$order_total = (float) $order->total_paid;
+			$current_state_id = $order->getCurrentOrderState()->id;
 
             if ($row["order_id"] == "")
                 return;
@@ -157,7 +158,7 @@ class HipayMbwayConfirmationModuleFrontController extends ModuleFrontController 
                 case "c8":
                 case "c9":
                 case "vp2":
-                    if (Configuration::get('HIPAY_MBWAY_CANCELLED') != $current_state_id) {
+                    if (Configuration::get('HIPAY_MBWAY_CANCELLED') != $current_state_id && Configuration::get('HIPAY_MBWAY_CONFIRM') != $current_state_id && Configuration::get('PS_OS_REFUND') != $current_state_id ) {
                         Db::getInstance()->update('hipaymbway', array(
                             'notification_date' => date('Y-m-d H:i:s'),
                             'status' => 'error',
