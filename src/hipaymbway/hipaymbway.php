@@ -29,7 +29,7 @@ class HipayMbway extends PaymentModule {
     public function __construct() {
         $this->name = 'hipaymbway';
         $this->tab = 'payments_gateways';
-        $this->version = '1.0.2';
+        $this->version = '1.0.4';
         $this->ps_versions_compliancy = array('min' => '1.7.1.0', 'max' => _PS_VERSION_);
         $this->author = 'HiPay Portugal';
         $this->controllers = array('payment', 'validation');
@@ -346,12 +346,12 @@ class HipayMbway extends PaymentModule {
                             array(
                                 'id' => 'active_on',
                                 'value' => true,
-                                'label' => $this->l('Enabled', array(), 'Admin.Global'),
+                                'label' => $this->l('Enabled'),
                             ),
                             array(
                                 'id' => 'active_off',
                                 'value' => false,
-                                'label' => $this->l('Disabled', array(), 'Admin.Global'),
+                                'label' => $this->l('Disabled'),
                             )
                         ),
                     ),
@@ -405,18 +405,18 @@ class HipayMbway extends PaymentModule {
                             array(
                                 'id' => 'active_on',
                                 'value' => true,
-                                'label' => $this->l('Enabled', array(), 'Admin.Global'),
+                                'label' => $this->l('Enabled'),
                             ),
                             array(
                                 'id' => 'active_off',
                                 'value' => false,
-                                'label' => $this->l('Disabled', array(), 'Admin.Global'),
+                                'label' => $this->l('Disabled'),
                             )
                         ),
                     ),                    
                 ),
                 'submit' => array(
-                    'title' => $this->l('Save', array(), 'Admin.Actions'),
+                    'title' => $this->l('Save'),
                 )
             ),
         );

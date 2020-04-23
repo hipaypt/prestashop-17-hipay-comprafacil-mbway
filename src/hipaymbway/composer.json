@@ -1,9 +1,9 @@
 {
-  "name": "hipaypt/hipaypt-mbway-prestashop",
+  "name": "hipaypt/prestashop-17-hipay-comprafacil-mbway",
   "description": "PrestaShop module HiPay MB WAY",
-  "homepage": "https://github.com/hipaypt/hipaypt-mbway-prestashop",
+  "homepage": "https://github.com/hipaypt/prestashop-17-hipay-comprafacil-mbway",
   "license": "Apache 2.0",
-  "version": "1.0.0",
+  "version": "1.0.4",
   "authors": [
     {
       "name": "HiPay Portugal",
