@@ -16,6 +16,7 @@ Soap library
 
 ### Version Update
 
+#### 1.0.5	=> update production endpoint 
 #### 1.0.2	=> add order_id on confirmation	
 #### 1.0.1	=> add module logs
 
