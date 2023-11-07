@@ -69,7 +69,7 @@ class HipayMbwayValidationModuleFrontController extends ModuleFrontController {
         $customer_email = $this->context->customer->email;
 
         $mbway_phone = Tools::getValue('altPhoneNumber');
-        if (strlen($mbway_phone) == "") {
+        if (strlen($mbway_phone) == 0) {
             $id_address = $this->context->cart->id_address_invoice;
             $address = new Address($id_address);
             if ($address->phone_mobile != "")
